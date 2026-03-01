@@ -6,6 +6,7 @@ import { jWTToken } from "../services/jwt.js";
 import type { RegisterDTO } from "../types/data.js";
 import type { Req, Res } from "../types/expressTypes.js";
 import { accessTokenOptions, refreshTokenOptions } from "../utils/tockenOptions.js";
+import { NotAuthorizedError } from "../errors/not-authorized-error.js";
 
 class AuthController {
     async register(req: Req, res: Res) {
@@ -77,6 +78,35 @@ class AuthController {
         res.json({
             success: true,
             data: { name: user.name, email },
+        });
+    }
+    async refreshToken(req: Req, res: Res) {
+        const { refreshToken } = req.cookies;
+        if (!refreshToken) throw new NotAuthorizedError();
+
+        let decoded;
+        try {
+            decoded = await jWTToken.verifyJwt(refreshToken, process.env.JWT_REFRESH_KEY as string);
+        } catch (err) {
+            console.error(err)
+            throw new NotAuthorizedError();
+        }
+
+        if (!decoded?.email) throw new NotAuthorizedError();
+
+        const payload = { email: decoded.email };
+        const accessTokenExpiresIn = (process.env.ACCESS_TOKEN_EXPIRE ?? "1h") as SignOptions["expiresIn"];
+        const accessToken = jWTToken.createJWT(
+            payload,
+            process.env.JWT_KEY as string,
+            accessTokenExpiresIn
+        );
+
+        res.cookie('accessToken', accessToken, accessTokenOptions);
+
+        res.status(200).json({
+            success: true,
+            message: "Access token refreshed"
         });
     }
 }

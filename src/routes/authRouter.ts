@@ -18,6 +18,7 @@ export function authRouter(router: Router) {
         validateRequest,
         authController.login
     );
+    router.get('/refresh', authController.refreshToken);
 
     return router;
 }
