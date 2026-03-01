@@ -61,13 +61,13 @@ class AuthController {
         const refreshTokenExpiresIn = (process.env.REFRESH_TOKEN_EXPIRE ?? "30d") as SignOptions["expiresIn"];
 
         const accessToken = jWTToken.createJWT(
-            { email },
+            { email, id: user.id },
             process.env.JWT_KEY as string,
             accessTokenExpiresIn
         );
 
         const refreshToken = jWTToken.createJWT(
-            { email },
+            { email, id: user.id },
             process.env.JWT_REFRESH_KEY as string,
             refreshTokenExpiresIn
         );
@@ -77,7 +77,7 @@ class AuthController {
 
         res.json({
             success: true,
-            data: { name: user.name, email },
+            data: { name: user.name, email, id: user.id },
         });
     }
     async refreshToken(req: Req, res: Res) {
@@ -92,9 +92,9 @@ class AuthController {
             throw new NotAuthorizedError();
         }
 
-        if (!decoded?.email) throw new NotAuthorizedError();
+        if (!decoded?.email || !decoded?.id) throw new NotAuthorizedError();
 
-        const payload = { email: decoded.email };
+        const payload = { email: decoded.email, id: decoded.id };
         const accessTokenExpiresIn = (process.env.ACCESS_TOKEN_EXPIRE ?? "1h") as SignOptions["expiresIn"];
         const accessToken = jWTToken.createJWT(
             payload,

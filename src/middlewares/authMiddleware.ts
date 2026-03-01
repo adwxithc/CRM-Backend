@@ -18,11 +18,11 @@ class Protect implements IProtect {
    
 
     protectUser = async (req: Req, res: Res, next: Next) => {
-        const token = req.cookies.token;
-        
+        const token = req.cookies.accessToken;
+        if (!token) throw new ForbiddenRequestError();
         const decoded = await jWTToken.verifyJwt(token,process.env.JWT_KEY as string);
 
-        if (decoded?.email) {
+        if (decoded?.email && decoded?.id) {
             req.user = decoded;
             return next();
         }
