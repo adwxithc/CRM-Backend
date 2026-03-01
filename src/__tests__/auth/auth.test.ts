@@ -1,7 +1,6 @@
-import request from "supertest";
-import { app } from "../../app.js";
 import { clearTestDB, closeTestDB, connectTestDB } from "./setup.js";
 import { VALID_USER } from "./fixtures.js";
+import { loginUser, registerUser } from "../helpers/auth.js";
 
 
 beforeAll(async () => {
@@ -16,20 +15,6 @@ beforeAll(async () => {
 afterEach(clearTestDB);
 
 afterAll(closeTestDB);
-
-const registerUser = (overrides: Record<string, unknown> = {}) =>
-    request(app)
-        .post("/api/auth/register")
-        .send({ ...VALID_USER, ...overrides });
-
-const loginUser = (overrides: Record<string, unknown> = {}) =>
-    request(app)
-        .post("/api/auth/login")
-        .send({
-            email: VALID_USER.email,
-            password: VALID_USER.password,
-            ...overrides,
-        });
 
 // ─── POST /api/auth/register ──────────────────────────────────────────────────
 
