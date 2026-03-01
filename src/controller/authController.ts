@@ -30,7 +30,7 @@ class AuthController {
                 email,
             },
             success: true,
-            message: "user created"
+            message: "Account created, please login with your email and password"
         });
     }
 }
