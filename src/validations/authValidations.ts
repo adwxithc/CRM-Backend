@@ -14,3 +14,10 @@ export const registerValidation = [
             "Password must contain at least one letter, one number, and one special character"
         ),
 ]
+
+export const loginValidation = [
+    body("email").isEmail().withMessage("Please provide a valid email"),
+    body("password")
+        .isLength({ min: 6, max: 20 })
+        .withMessage("Password must be between 6 and 20 characters long")
+]
