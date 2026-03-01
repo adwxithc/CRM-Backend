@@ -1,12 +1,11 @@
 import express from "express";
-// import "express-async-errors";
 import cors from "cors";
 
 // import cookieParser from "cookie-parser";
 
 import dotenv from "dotenv";
-// import { errorHandler } from "./middlewares/error-handler.js";
-// import { userRouter } from "./routes/userRoter";
+import { errorHandler } from "./middlewares/error-handler.js";
+import { authRouter } from "./routes/authRouter.js";
 
 dotenv.config();
 
@@ -35,10 +34,10 @@ app.get("/", (req, res) => {
     res.send("Welcome to CRM Backend API");
 });
 
-// app.use("/api/user",userRouter(express.Router()));
+app.use("/api/auth",authRouter(express.Router()));
 
 
 
-// app.use(errorHandler);
+app.use(errorHandler);
 
 export { app }; 
