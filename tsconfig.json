@@ -40,5 +40,7 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+  },
+  // Exclude test files so VS Code uses tsconfig.test.json for them
+  "exclude": ["src/__tests__", "eslint.config.mts", "jest.config.cjs"]
 }
