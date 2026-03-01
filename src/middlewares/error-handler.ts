@@ -1,5 +1,5 @@
-import { Next, Req, Res } from "../types/expressTypes";
-import { CustomError } from "../errors/custom-error";
+import type { Next, Req, Res } from "../types/expressTypes.js";
+import { CustomError } from "../errors/custom-error.js";
 
 
 

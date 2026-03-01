@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Expose Jest and Node globals only for test files
+    "types": ["jest", "node"],
+    // Jest (via ts-jest) compiles to CJS; override the nodenext settings
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "verbatimModuleSyntax": false,
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*.ts"]
+}
