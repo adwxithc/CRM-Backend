@@ -46,6 +46,7 @@ export interface PaginateOptions {
     limit?: number;
     sort?: Record<string, unknown>;
     lean?: boolean;
+    populate?: Record<string, unknown> | string;
 }
 
 export interface PaginateResult<T> {

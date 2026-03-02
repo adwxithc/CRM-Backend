@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import { errorHandler } from "./middlewares/error-handler.js";
 import { authRouter } from "./routes/authRouter.js";
 import { contactRouter } from "./routes/contactRouter.js";
+import { activityLogRouter } from "./routes/activityLogRouter.js";
 import { NotFoundError } from "./errors/not-found-error.js";
 
 dotenv.config();
@@ -38,6 +39,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRouter(express.Router()));
 app.use("/api/contact", contactRouter(express.Router()));
+app.use("/api/activity", activityLogRouter(express.Router()));
 
 app.use('/{*splat}', () => {
     throw new NotFoundError();
