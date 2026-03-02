@@ -1,5 +1,10 @@
-import mongoose, { Schema } from "mongoose";
-import type { IActivityLog, IContact } from "../types/data.js";
+import mongoose, { Schema, type Model } from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
+import type { IActivityLog, PaginateOptions, PaginateResult } from "../types/data.js";
+
+export type PaginateModel<T> = Model<T> & {
+    paginate(query?: Record<string, unknown>, options?: PaginateOptions): Promise<PaginateResult<T>>;
+};
 
 
 
@@ -36,7 +41,8 @@ const activityLogSchema = new Schema<IActivityLog>(
     }
 );
 
-const ActivityLogModel = mongoose.model<IActivityLog>("ActivityLog", activityLogSchema);
+activityLogSchema.plugin(mongoosePaginate);
 
+const ActivityLogModel = mongoose.model<IActivityLog, PaginateModel<IActivityLog>>("ActivityLog", activityLogSchema);
 
 export default ActivityLogModel;
