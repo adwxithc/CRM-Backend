@@ -10,6 +10,7 @@ import { NotAuthorizedError } from "../errors/not-authorized-error.js";
 
 class AuthController {
     async register(req: Req, res: Res) {
+
         const { name, email, password } = req.body as RegisterDTO;
 
         const exist = await userRepository.findByEmail(email);
@@ -61,13 +62,13 @@ class AuthController {
         const refreshTokenExpiresIn = (process.env.REFRESH_TOKEN_EXPIRE ?? "30d") as SignOptions["expiresIn"];
 
         const accessToken = jWTToken.createJWT(
-            { email },
+            { email, id: user.id },
             process.env.JWT_KEY as string,
             accessTokenExpiresIn
         );
 
         const refreshToken = jWTToken.createJWT(
-            { email },
+            { email, id: user.id },
             process.env.JWT_REFRESH_KEY as string,
             refreshTokenExpiresIn
         );
@@ -77,7 +78,7 @@ class AuthController {
 
         res.json({
             success: true,
-            data: { name: user.name, email },
+            data: { name: user.name, email, id: user.id },
         });
     }
     async refreshToken(req: Req, res: Res) {
@@ -92,9 +93,9 @@ class AuthController {
             throw new NotAuthorizedError();
         }
 
-        if (!decoded?.email) throw new NotAuthorizedError();
+        if (!decoded?.email || !decoded?.id) throw new NotAuthorizedError();
 
-        const payload = { email: decoded.email };
+        const payload = { email: decoded.email, id: decoded.id };
         const accessTokenExpiresIn = (process.env.ACCESS_TOKEN_EXPIRE ?? "1h") as SignOptions["expiresIn"];
         const accessToken = jWTToken.createJWT(
             payload,
@@ -107,6 +108,24 @@ class AuthController {
         res.status(200).json({
             success: true,
             message: "Access token refreshed"
+        });
+    }
+
+    async getCurrentUser(req: Req, res: Res) {
+        const { user } = req;
+        const userData = await userRepository.findByEmail(user?.email || "");
+        if (!userData) throw new NotAuthorizedError();
+        res.json({
+            success: true,
+            data: { name: userData.name, email: userData.email, id: userData.id },
+        });
+    }
+    async logout(req: Req, res: Res) {
+        res.clearCookie("accessToken", accessTokenOptions);
+        res.clearCookie("refreshToken", refreshTokenOptions);
+        res.json({
+            success: true,
+            message: "Logged out successfully"
         });
     }
 }

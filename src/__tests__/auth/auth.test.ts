@@ -2,6 +2,7 @@ import request from "supertest";
 import { app } from "../../app.js";
 import { clearTestDB, closeTestDB, connectTestDB } from "./setup.js";
 import { VALID_USER } from "./fixtures.js";
+import { getAuthCookie, loginUser, registerUser } from "../helpers/auth.js";
 
 
 beforeAll(async () => {
@@ -9,6 +10,7 @@ beforeAll(async () => {
     process.env.JWT_REFRESH_KEY = "test-refresh-secret";
     process.env.ACCESS_TOKEN_EXPIRE = "1h";
     process.env.REFRESH_TOKEN_EXPIRE = "30d";
+    process.env.DISABLE_RATE_LIMIT = "true";
 
     await connectTestDB();
 });
@@ -16,20 +18,6 @@ beforeAll(async () => {
 afterEach(clearTestDB);
 
 afterAll(closeTestDB);
-
-const registerUser = (overrides: Record<string, unknown> = {}) =>
-    request(app)
-        .post("/api/auth/register")
-        .send({ ...VALID_USER, ...overrides });
-
-const loginUser = (overrides: Record<string, unknown> = {}) =>
-    request(app)
-        .post("/api/auth/login")
-        .send({
-            email: VALID_USER.email,
-            password: VALID_USER.password,
-            ...overrides,
-        });
 
 // ─── POST /api/auth/register ──────────────────────────────────────────────────
 
@@ -172,5 +160,52 @@ describe("POST /api/auth/login", () => {
                 (e: { field: string }) => e.field === "password"
             )
         ).toBe(true);
+    });
+});
+
+// ─── GET /api/auth/me ─────────────────────────────────────────────────────────
+
+describe("GET /api/auth/me", () => {
+    it("returns 200 and user data when authenticated", async () => {
+        const cookie = await getAuthCookie();
+        const res = await request(app).get("/api/auth/me").set("Cookie", cookie);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.data).toMatchObject({
+            name: VALID_USER.name,
+            email: VALID_USER.email,
+        });
+        expect(res.body.data.password).toBeUndefined();
+    });
+
+    it("returns 4xx when not authenticated", async () => {
+        const res = await request(app).get("/api/auth/me");
+        expect(res.status).toBeGreaterThanOrEqual(400);
+    });
+});
+
+// ─── POST /api/auth/logout ────────────────────────────────────────────────────
+
+describe("POST /api/auth/logout", () => {
+    it("returns 200 and clears auth cookies when authenticated", async () => {
+        const cookie = await getAuthCookie();
+        const res = await request(app).post("/api/auth/logout").set("Cookie", cookie);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toMatch(/logged out/i);
+
+        // Both cookies should be cleared (Max-Age=0 or Expires in the past)
+        const cookies = (res.headers["set-cookie"] as unknown as string[]) ?? [];
+        const cookieStr = cookies.join("; ").toLowerCase();
+        expect(cookieStr).toMatch(/accesstoken/);
+        expect(cookieStr).toMatch(/refreshtoken/);
+        expect(cookieStr).toMatch(/expires=thu, 01 jan 1970|max-age=0/);
+    });
+
+    it("returns 4xx when not authenticated", async () => {
+        const res = await request(app).post("/api/auth/logout");
+        expect(res.status).toBeGreaterThanOrEqual(400);
     });
 });
