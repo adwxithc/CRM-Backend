@@ -54,14 +54,6 @@ describe("POST /api/contact/", () => {
         expect(res.status).toBeGreaterThanOrEqual(400);
     });
 
-    it("returns 400 when contact email already exists", async () => {
-        await createContact(cookie);
-        const res = await createContact(cookie);
-
-        expect(res.status).toBe(400);
-        expect(res.body.errors[0].message).toMatch(/already exists/i);
-    });
-
     it("returns 400 when name is missing", async () => {
         const res = await createContact(cookie, { name: undefined });
 

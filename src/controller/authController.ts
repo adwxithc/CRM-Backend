@@ -10,6 +10,7 @@ import { NotAuthorizedError } from "../errors/not-authorized-error.js";
 
 class AuthController {
     async register(req: Req, res: Res) {
+
         const { name, email, password } = req.body as RegisterDTO;
 
         const exist = await userRepository.findByEmail(email);
@@ -107,6 +108,16 @@ class AuthController {
         res.status(200).json({
             success: true,
             message: "Access token refreshed"
+        });
+    }
+
+    async getCurrentUser(req: Req, res: Res) {
+        const { user } = req;
+        const userData = await userRepository.findByEmail(user?.email || "");
+        if (!userData) throw new NotAuthorizedError();
+        res.json({
+            success: true,
+            data: { name: userData.name, email: userData.email, id: userData.id },
         });
     }
 }

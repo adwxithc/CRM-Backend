@@ -1,6 +1,8 @@
+import request from "supertest";
+import { app } from "../../app.js";
 import { clearTestDB, closeTestDB, connectTestDB } from "./setup.js";
 import { VALID_USER } from "./fixtures.js";
-import { loginUser, registerUser } from "../helpers/auth.js";
+import { getAuthCookie, loginUser, registerUser } from "../helpers/auth.js";
 
 
 beforeAll(async () => {
@@ -157,5 +159,27 @@ describe("POST /api/auth/login", () => {
                 (e: { field: string }) => e.field === "password"
             )
         ).toBe(true);
+    });
+});
+
+// ─── GET /api/auth/me ─────────────────────────────────────────────────────────
+
+describe("GET /api/auth/me", () => {
+    it("returns 200 and user data when authenticated", async () => {
+        const cookie = await getAuthCookie();
+        const res = await request(app).get("/api/auth/me").set("Cookie", cookie);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.data).toMatchObject({
+            name: VALID_USER.name,
+            email: VALID_USER.email,
+        });
+        expect(res.body.data.password).toBeUndefined();
+    });
+
+    it("returns 4xx when not authenticated", async () => {
+        const res = await request(app).get("/api/auth/me");
+        expect(res.status).toBeGreaterThanOrEqual(400);
     });
 });

@@ -20,7 +20,6 @@ const contactSchema = new Schema<IContact>(
         email: {
             type: String,
             required: true,
-            unique: true
         },
         phone: {
             type: String,

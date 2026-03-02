@@ -14,11 +14,6 @@ class ContactController {
         const createdBy = toObjectId(req.user?.id as string);
         if (!createdBy) throw new BadRequestError("User not found");
 
-        const existingContact = await contactRepository.findByEmail(email);
-        if (existingContact) {
-            throw new BadRequestError("Contact with the same email already exists");
-        }
-
         const contactData: IContact = { name, email, phone, company, status, notes, createdBy };
         const newContact = await contactRepository.createContact(contactData);
 
