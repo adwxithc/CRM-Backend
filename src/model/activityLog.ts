@@ -5,7 +5,7 @@ import type { IActivityLog, PaginateOptions, PaginateResult } from "../types/dat
 export type PaginateModel<T> = Model<T> & {
     paginate(query?: Record<string, unknown>, options?: PaginateOptions): Promise<PaginateResult<T>>;
 };
-
+//
 
 
 const activityLogSchema = new Schema<IActivityLog>(
