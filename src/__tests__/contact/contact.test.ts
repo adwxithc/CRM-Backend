@@ -10,6 +10,7 @@ beforeAll(async () => {
     process.env.JWT_REFRESH_KEY = "test-refresh-secret";
     process.env.ACCESS_TOKEN_EXPIRE = "1h";
     process.env.REFRESH_TOKEN_EXPIRE = "30d";
+    process.env.DISABLE_RATE_LIMIT = "true";
 
     await connectTestDB();
 });

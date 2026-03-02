@@ -3,6 +3,7 @@ import { loginValidation, registerValidation } from '../validations/authValidati
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { authController } from '../controller/authController.js';
 import protect from '../middlewares/authMiddleware.js';
+import { loginRateLimiter } from '../middlewares/rateLimiter.js';
 
 export function authRouter(router: Router) {
     router.post(
@@ -14,6 +15,7 @@ export function authRouter(router: Router) {
 
     router.post(
         '/login',
+        loginRateLimiter,
         loginValidation,
         validateRequest,
         authController.login
