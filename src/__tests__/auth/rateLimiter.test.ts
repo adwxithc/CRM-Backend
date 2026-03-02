@@ -9,7 +9,8 @@ beforeAll(async () => {
     process.env.JWT_REFRESH_KEY = "test-refresh-secret";
     process.env.ACCESS_TOKEN_EXPIRE = "1h";
     process.env.REFRESH_TOKEN_EXPIRE = "30d";
-    // Do NOT set DISABLE_RATE_LIMIT so the limiter is active
+    // Explicitly enable the rate limiter — override whatever .env loaded
+    delete process.env.DISABLE_RATE_LIMIT;
 
     await connectTestDB();
 });

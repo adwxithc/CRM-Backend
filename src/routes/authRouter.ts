@@ -22,6 +22,7 @@ export function authRouter(router: Router) {
     );
     router.get('/refresh', authController.refreshToken);
     router.get('/me', protect.protectUser, authController.getCurrentUser);
+    router.post('/logout', protect.protectUser, authController.logout);
 
     return router;
 }

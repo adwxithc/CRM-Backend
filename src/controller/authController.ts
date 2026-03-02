@@ -120,6 +120,14 @@ class AuthController {
             data: { name: userData.name, email: userData.email, id: userData.id },
         });
     }
+    async logout(req: Req, res: Res) {
+        res.clearCookie("accessToken", accessTokenOptions);
+        res.clearCookie("refreshToken", refreshTokenOptions);
+        res.json({
+            success: true,
+            message: "Logged out successfully"
+        });
+    }
 }
 
 export const authController = new AuthController();
